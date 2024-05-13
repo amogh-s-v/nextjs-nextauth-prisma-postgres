@@ -1,34 +1,29 @@
+// components/SignInForm.tsx
 "use client";
-
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import GoogleSignInButton from "../GoogleSignInButton";
+  TextField,
+  Button,
+  Typography,
+  Link,
+  Box,
+  Divider,
+} from "@mui/material"; // Importing Material-UI components
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+// Define form schema using Zod
 const FormSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
   password: z
     .string()
     .min(1, "Password is required")
-    .min(8, "Password must have than 8 characters"),
+    .min(8, "Password must have at least 8 characters"),
 });
 
 const SignInForm = () => {
-  const { toast } = useToast();
   const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -38,78 +33,69 @@ const SignInForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+  // Submit handler
+  const onSubmit: SubmitHandler<z.infer<typeof FormSchema>> = async (
+    values
+  ) => {
     const signInData = await signIn("credentials", {
       email: values.email,
       password: values.password,
       redirect: false,
     });
-    console.log("SINGIN DATA", signInData);
+
+    console.log("SIGN IN DATA", signInData);
+
     if (signInData?.error) {
-      toast({
-        title: "Error!",
-        description: "Something Went Wrong",
-      });
     } else {
-      toast({
-        title: "Success!",
-        description: "Signed In Successfully",
-      });
-      router.refresh();
       router.push("/admin");
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-        <div className="space-y-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="mail@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button className="w-full mt-6" type="submit">
+    <form {...form} onSubmit={form.handleSubmit(onSubmit)}>
+      <Box maxWidth={400} mx="auto" mt={4} p={2}>
+        <TextField
+          label="Email"
+          variant="outlined"
+          fullWidth
+          {...form.register("email")}
+          error={!!form.formState.errors.email}
+          helperText={form.formState.errors.email?.message}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label="Password"
+          variant="outlined"
+          fullWidth
+          type="password"
+          {...form.register("password")}
+          error={!!form.formState.errors.password}
+          helperText={form.formState.errors.password?.message}
+          sx={{ mb: 2 }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          type="submit"
+          sx={{ mb: 2 }}
+        >
           Sign in
         </Button>
-      </form>
-      <div className="mx-auto my-4 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-stone-400 after:ml-4 after:block after:h-px after:flex-grow after:bg-stone-400">
-        or
-      </div>
-      <GoogleSignInButton>Sign in with Google</GoogleSignInButton>
-      <p className="text-center text-sm text-gray-600 mt-2">
-        If you don&apos;t have an account, please&nbsp;
-        <Link className="text-blue-500 hover:underline" href="/sign-up">
-          Sign up
-        </Link>
-      </p>
-    </Form>
+        <Divider sx={{ my: 2 }}>or</Divider>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          align="center"
+          sx={{ mt: 2 }}
+        >
+          If you dont have an account, please{" "}
+          <Link href="/sign-up" underline="hover" color="primary">
+            Sign up
+          </Link>
+        </Typography>
+      </Box>
+    </form>
   );
 };
 
