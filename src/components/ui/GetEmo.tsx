@@ -6,7 +6,7 @@ import { Button } from "@mui/material";
 const GetEmo = () => {
   return (
     <Button onClick={async()=>{
-        const res = await fetch("/api/emotion", {
+        const res = await fetch("/api/sentimentHistory", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

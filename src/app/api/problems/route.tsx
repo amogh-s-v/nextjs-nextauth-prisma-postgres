@@ -19,46 +19,56 @@ async function query(data) {
 }
 
 export async function POST(req) {
+  const session = await getServerSession(authOptions);
+  try {
+    const body = await req.json();
+    const { journal_id, journal_text } = body;
 
-	const session = await getServerSession(authOptions)
-	try {
-	  const body = await req.json();
-	  const { journal_id, journal_text } = body;
-  
-	  // Await the query to get the response
-	  const response = await query({ inputs: journal_text });
-  
-	  console.log(journal_text);
-	  console.log(JSON.stringify(response));
+    // Await the query to get the response
+    const response = await query({ inputs: journal_text });
 
-      const filterEntities = (response) => {
-        const seenEntities = new Set();
-        const filteredResponse = [];
-      
-        response.forEach(item => {
-          if (item.entity_group !== "0" && !seenEntities.has(item.word)) {
-            filteredResponse.push(item.word);
-            seenEntities.add(item.word);
-          }
-        });
-      
-        return filteredResponse;
-      };
-      
-      // Get the filtered response
-      const filteredProblems = filterEntities(response);
+    const filterEntities = (response) => {
+      const seenEntities = new Set();
+      const filteredResponse = [];
 
-      console.log("filteredProblems", filteredProblems)
-  
-	  return NextResponse.json(
-		{ problems: filteredProblems, message: "" },
-		{ status: 201 }
-	  );
-	} catch (error) {
-	  console.error(error);
-	  return NextResponse.json(
-		{ error: 'An error occurred' },
-		{ status: 500 }
-	  );
-	}
+      response.forEach((item) => {
+        if (item.entity_group !== "0" && !seenEntities.has(item.word)) {
+          filteredResponse.push(item.word);
+          seenEntities.add(item.word);
+        }
+      });
+
+      return filteredResponse;
+    };
+
+    // Get the filtered response
+    const filteredProblems = filterEntities(response);
+
+
+    if (session?.user.id) {
+      filteredProblems.forEach(async (problem) => {
+        try {
+          const newProblem = await db.problem.create({
+            data: {
+              problem: problem,
+              user_id: session?.user.id,
+            },
+          });
+          console.log(
+            `Problem with ID ${newProblem.problem_id} inserted into the database.`
+          );
+        } catch (error) {
+          console.error(`Error inserting problem: ${problem}`, error);
+        }
+      });
+    }
+
+    return NextResponse.json(
+      { problems: [filteredProblems], message: "" },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
+}

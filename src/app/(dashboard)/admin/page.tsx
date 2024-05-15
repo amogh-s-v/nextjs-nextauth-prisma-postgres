@@ -12,8 +12,8 @@ const Page = async () => {
   return (
     <Box mt={8} textAlign="center">
       {session?.user ? (
-        // <ChatInterface/>
-        <GetEmo/>
+        <ChatInterface/>
+        // <GetEmo/>
       ) : (
         <Typography variant="h6" color="secondary">Please login to access this page</Typography>
       )}

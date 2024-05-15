@@ -14,44 +14,84 @@ export default function Page({ params }: { params: { journal_id: string } }) {
     setJournalText(event.target.value);
   };
 
-  // Function to handle the submit action
-  const handleSubmit = async () => {
-    console.log("Journal Text:", journalText);
+  const fetchEditJournal = async (journal_id, journalText) => {
     const res = await fetch("/api/editJournal", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        journal_id: params.journal_id,
+        journal_id,
         journal_text: journalText,
       }),
     });
+    return res;
+  };
 
-    const resSentiment = await fetch("/api/sentiment", {
+  const fetchSentimentAnalysis = async (journal_id, journalText) => {
+    const res = await fetch("/api/sentiment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({journal_id: params.journal_id, journal_text: journalText}),
-    })
-    console.log("RESPONSE", resSentiment);
-    const data = await resSentiment.json();
-    setTopSentiment(data.topSentiment);
+      body: JSON.stringify({ journal_id, journal_text: journalText }),
+    });
+    return res;
+  };
 
-    const resProblems = await fetch("/api/problems", {
+  const fetchProblems = async (journal_id, journalText) => {
+    const res = await fetch("/api/problems", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        journal_id: params.journal_id,
+        journal_id,
         journal_text: journalText,
       }),
     });
+    return res;
+  };
+
+  const fetchSolution = async () => {
+    const res = await fetch("/api/solution", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        journal_id: "",
+        journal_text: "",
+      }),
+    });
+    return res;
+  };
+
+  // Function to handle the submit action
+  const handleSubmit = async () => {
+    console.log("Journal Text:", journalText);
+
+    //modify journal entry
+    const resEditJournal = await fetchEditJournal(
+      params.journal_id,
+      journalText
+    );
+
+    //extract sentiments and save it in db
+    const resSentiment = await fetchSentimentAnalysis(
+      params.journal_id,
+      journalText
+    );
+    const data = await resSentiment.json();
+    setTopSentiment(data.topSentiment);
+
+    //extract problems and save it in db
+    const resProblems = await fetchProblems(params.journal_id, journalText);
     const problemsData = await resProblems.json();
-    console.log("problemsData", problemsData)
     setProblems(problemsData.problems);
+
+    const res = await fetchSolution()
+
   };
 
   return (
