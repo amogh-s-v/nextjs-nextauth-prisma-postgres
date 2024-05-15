@@ -80,6 +80,7 @@ export default function Page({ params }: { params: { journal_id: string } }) {
       <Button variant="contained" color="primary" onClick={handleSubmit}>
         Submit
       </Button>
+      <br></br>
       {topSentiment == "" ? (
         <></>
       ) : (
@@ -87,6 +88,8 @@ export default function Page({ params }: { params: { journal_id: string } }) {
           The Top sentiment Identified From the Journal Entry: {topSentiment}
         </Typography>
       )}
+      <br></br>
+      <Typography>Problems Identified: </Typography>
       {problems.length === 0 ? (
         <></> // Empty fragment if there are no problems
       ) : (
