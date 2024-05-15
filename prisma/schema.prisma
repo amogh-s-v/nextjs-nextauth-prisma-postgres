@@ -8,10 +8,38 @@ datasource db {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  username   String @unique
-  password String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String      @id @default(uuid())
+  email     String      @unique
+  username  String      @unique
+  password  String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  journals  Journal[]
+  sentiment Sentiment[]
+  problems  Problem[]
+}
+
+model Journal {
+  journal_id   String      @id @default(uuid())
+  journal_text String
+  user         User        @relation(fields: [user_id], references: [id])
+  user_id      String
+  date         DateTime    @default(now())
+  sentiment    Sentiment[]
+}
+
+model Sentiment {
+  sentiment_id String  @id @default(uuid())
+  sentiment    String
+  user_id      String
+  journal_id   String
+  user         User    @relation(fields: [user_id], references: [id])
+  journal      Journal @relation(fields: [journal_id], references: [journal_id])
+}
+
+model Problem {
+  problem_id String @id @default(uuid())
+  problem String 
+  user_id String 
+  user User @relation(fields: [user_id], references: [id])
 }

@@ -1,30 +1,50 @@
 import { ModelFusionTextStream, asChatMessages } from "@modelfusion/vercel-ai";
 import { Message, StreamingTextResponse } from "ai";
 // import { ollama, streamText } from "modelfusion";
-import { ollama, zodSchema, generateObject, streamText } from "modelfusion";
+import { ollama, zodSchema, generateObject, jsonObjectPrompt } from "modelfusion";
 import { z } from "zod";
 
 export const runtime = "edge";
 
 export async function POST(req: Request) {
   const { messages }: { messages: Message[] } = await req.json();
+  console.log("MESSAGES", messages)
 
   // Use ModelFusion to call Ollama:
-  const textStream = await streamText({
-    model: ollama.ChatTextGenerator({ model: "llama2" }).withChatPrompt(),
+  const emotion = await generateObject({
+    model: ollama
+      .ChatTextGenerator({
+        model: "llama2",
+        maxGenerationTokens: 1024,
+        temperature: 0,
+      })
+      .asObjectGenerationModel(jsonObjectPrompt.instruction()),
+  
+      schema: zodSchema(
+        z.object({
+          emotion: z.object({
+            Gratitude: z.number().min(0).max(1),
+            Anger: z.number().min(0).max(1),
+            Frustration: z.number().min(0).max(1),
+          }).strict().nonstrict().describe("Emotion scores."),
+        })
+      ),
+  
     prompt: {
       system:
-        "You are an AI chat bot. " +
-        "Follow the user's instructions carefully. Give me the first and last word of the para.",
-      // map Vercel AI SDK Message to ModelFusion ChatMessage:
-      messages: asChatMessages(messages),
+        "You are a emotion evaluator. " +
+        "Analyze the emotion of the following journal entry:",
+      instruction:
+        "Today was a struggle as arthritis continued to flare up, making even the simplest tasks feel like monumental challenges. Grateful for supportive friends and family who offered understanding and assistance throughout the day.",
     },
   });
+
+  console.log("SENTI", emotion)
 
   // Return the result using the Vercel AI SDK:
   return new StreamingTextResponse(
     ModelFusionTextStream(
-      textStream,
+        sentiment,
       // optional callbacks:
       {
         onStart() {
@@ -43,3 +63,4 @@ export async function POST(req: Request) {
     )
   );
 }
+
