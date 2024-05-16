@@ -8,7 +8,7 @@ async function query(data) {
     "https://api-inference.huggingface.co/models/alvaroalon2/biobert_diseases_ner",
     {
       headers: {
-        Authorization: "Bearer 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",
+        Authorization: "Bearer " + process.env.HUGGINGFACE_TOKEN,
       },
       method: "POST",
       body: JSON.stringify(data),

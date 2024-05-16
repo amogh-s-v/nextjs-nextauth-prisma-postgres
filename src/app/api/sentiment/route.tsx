@@ -8,7 +8,7 @@ async function query(data) {
     "https://api-inference.huggingface.co/models/badmatr11x/roberta-base-emotions-detection-from-text",
     {
       headers: {
-        Authorization: "Bearer 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",
+        Authorization: "Bearer " + process.env.HUGGINGFACE_TOKEN,
       },
       method: "POST",
       body: JSON.stringify(data),
