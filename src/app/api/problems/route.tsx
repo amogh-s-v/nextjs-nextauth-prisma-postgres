@@ -18,6 +18,38 @@ async function query(data) {
   return result;
 }
 
+async function createUniqueProblem(problem) {
+  try {
+    // Start a transaction
+    const result = await db.$transaction(async (prisma) => {
+      const existingProblem = await prisma.uniqueProblem.findUnique({
+        where: { problem: problem },
+      });
+
+      if (existingProblem) {
+        console.log('Problem already exists:', existingProblem);
+        return existingProblem; // Return the existing problem
+      }
+
+      const newUniqueProblem = await prisma.uniqueProblem.create({
+        data: { problem: problem },
+      });
+
+      console.log('Problem created:', newUniqueProblem);
+      return newUniqueProblem;
+    });
+
+    return result;
+  } catch (error) {
+    if (error.code === 'P2002') {
+      console.error('A problem with this description already exists.');
+    } else {
+      console.error('Error creating problem:', error);
+    }
+    throw error; // Re-throw the error if you want to handle it further up the call stack
+  }
+}
+
 export async function POST(req) {
   const session = await getServerSession(authOptions);
   try {
@@ -25,7 +57,12 @@ export async function POST(req) {
     const { journal_id, journal_text } = body;
 
     // Await the query to get the response
-    const response = await query({ inputs: journal_text });
+    const response = await query({
+      inputs: journal_text,
+      options: {
+        wait_for_model: true,
+      },
+    });
 
     const filterEntities = (response) => {
       const seenEntities = new Set();
@@ -55,12 +92,12 @@ export async function POST(req) {
                 user_id: session?.user.id,
               },
             });
-            console.log(
-              `Problem with ID ${newProblem.problem_id} inserted into the database.`
-            );
+
+            const data = await createUniqueProblem(problem);
+
             return {
-              problem: newProblem.problem,
-              problem_id: newProblem.problem_id,
+              problem: data?.problem,
+              problem_id: data?.problem_id,
             };
           } catch (error) {
             console.error(`Error inserting problem: ${problem}`, error);

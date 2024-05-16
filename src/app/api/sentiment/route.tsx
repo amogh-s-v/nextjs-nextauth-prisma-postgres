@@ -26,7 +26,9 @@ export async function POST(req) {
 	  const { journal_id, journal_text } = body;
   
 	  // Await the query to get the response
-	  const response = await query({ inputs: journal_text });
+	  const response = await query({ inputs: journal_text, options: {
+		wait_for_model: true
+	  } });
   
 	  console.log(journal_text);
 	  console.log(JSON.stringify(response));

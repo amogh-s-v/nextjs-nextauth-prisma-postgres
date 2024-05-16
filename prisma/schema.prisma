@@ -38,8 +38,22 @@ model Sentiment {
 }
 
 model Problem {
-  problem_id String @id @default(uuid())
-  problem String 
-  user_id String 
-  user User @relation(fields: [user_id], references: [id])
+  problem_history_id String @id @default(uuid())
+  problem            String
+  user_id            String
+  user               User   @relation(fields: [user_id], references: [id])
+}
+
+model UniqueProblem {
+  problem_id String     @id @default(uuid())
+  problem    String     @unique
+  soltuion   Solution[]
+}
+
+model Solution {
+  solution_id          String        @id @default(uuid())
+  solution_name        String
+  solution_description String
+  problem_id           String
+  problem              UniqueProblem @relation(fields: [problem_id], references: [problem_id])
 }

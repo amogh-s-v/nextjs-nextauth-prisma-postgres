@@ -15,6 +15,7 @@ import Avatar from "@mui/material/Avatar";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Link from "next/link";
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
 const pages = ["Problem History", "Sentiment History"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -47,7 +48,7 @@ function ResponsiveAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <AutoStoriesIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}/>
           <Typography
             variant="h6"
             noWrap
@@ -63,7 +64,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            LOGO
+            TherapeutAI
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
