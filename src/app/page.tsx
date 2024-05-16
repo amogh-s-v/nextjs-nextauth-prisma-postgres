@@ -12,7 +12,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-import CreateJournal from "@/components/CreateJournal";
+import CreateJournal from "@/components/buttons/CreateJournal";
 
 const App = async () => {
   const session = await getServerSession(authOptions);
@@ -50,7 +50,7 @@ const App = async () => {
                 WHY?
               </Typography>
               <Typography variant="body1">
-                This app helps individuals with disabilities improve their
+                This app helps individuals with chronice pain improve their
                 lifestyle through daily journaling. It provides personalized
                 exercise suggestions and tracks your progress, empowering you to
                 make positive changes for a healthier life.
@@ -78,19 +78,19 @@ const App = async () => {
                   <ArrowForwardIosIcon
                     sx={{ verticalAlign: "middle", color: "white" }}
                   />{" "}
-                  App analyzes entries for patterns.
+                  App extracts sentiments and pain points through your journal entry.
                 </Typography>
                 <Typography component="div">
                   <ArrowForwardIosIcon
                     sx={{ verticalAlign: "middle", color: "white" }}
                   />{" "}
-                  Track your sentiment and problem history.
+                  Recieve Execercise Suggestions Generated through LLMs and User Recommendations.
                 </Typography>
                 <Typography component="div">
                   <ArrowForwardIosIcon
                     sx={{ verticalAlign: "middle", color: "white" }}
                   />{" "}
-                  Customize your exercise routines.
+                  View Sentiment History.
                 </Typography>
               </Box>
             </Paper>
