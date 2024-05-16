@@ -44,29 +44,48 @@ export async function POST(req) {
     // Get the filtered response
     const filteredProblems = filterEntities(response);
 
-
     if (session?.user.id) {
-      filteredProblems.forEach(async (problem) => {
-        try {
-          const newProblem = await db.problem.create({
-            data: {
-              problem: problem,
-              user_id: session?.user.id,
-            },
-          });
-          console.log(
-            `Problem with ID ${newProblem.problem_id} inserted into the database.`
-          );
-        } catch (error) {
-          console.error(`Error inserting problem: ${problem}`, error);
-        }
-      });
-    }
+      try {
+        // Create an array to store the promises
+        const problemInsertions = filteredProblems.map(async (problem) => {
+          try {
+            const newProblem = await db.problem.create({
+              data: {
+                problem: problem,
+                user_id: session?.user.id,
+              },
+            });
+            console.log(
+              `Problem with ID ${newProblem.problem_id} inserted into the database.`
+            );
+            return {
+              problem: newProblem.problem,
+              problem_id: newProblem.problem_id,
+            };
+          } catch (error) {
+            console.error(`Error inserting problem: ${problem}`, error);
+            throw error;
+          }
+        });
 
-    return NextResponse.json(
-      { problems: [filteredProblems], message: "" },
-      { status: 201 }
-    );
+        // Wait for all promises to resolve
+        const insertedProblems = await Promise.all(problemInsertions);
+
+        return NextResponse.json(
+          {
+            problems: insertedProblems,
+            message: "Problems inserted successfully",
+          },
+          { status: 201 }
+        );
+      } catch (error) {
+        console.error("Error inserting problems:", error);
+        return NextResponse.json(
+          { message: "Error inserting problems", error: "error.message" },
+          { status: 500 }
+        );
+      }
+    }
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
