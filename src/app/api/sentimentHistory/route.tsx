@@ -5,7 +5,6 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-//   const { user_id } = req.query;
 
   try {
     const user = await db.user.findUnique({
@@ -21,17 +20,24 @@ export async function POST(req) {
       },
     });
 
-    console.log("USER", user)
 
-    // const { username, sentiment } = user;
-    // const formattedSentiments = sentiments.map((sentiment) => ({
-    //   sentiment_id: sentiment.sentiment_id,
-    //   date: sentiment.journal.date,
-    //   sentiments: sentiment.sentiments,
-    // }));
+    const { username, sentiment } = user;
+
+    const formattedSentiments = sentiment.map((sentiment) => {
+      console.log("SENTI", sentiment)
+      return {
+        sentiment_id: sentiment.sentiment_id,
+        date: sentiment.journal.date,
+        sentiment: sentiment.sentiment,
+        journal_text: sentiment.journal.journal_text,
+      };
+    });
+
+    console.log("FORMAT", formattedSentiments)
+
 
     return NextResponse.json(
-      { username:"ed", sentimentHistory: "owfien" },
+      { sentimentHistory: formattedSentiments },
       { status: 201 }
     );
   } catch (error) {
