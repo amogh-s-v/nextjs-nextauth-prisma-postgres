@@ -11,7 +11,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SignOutButton from "./buttons/SignOutButton";
 
-const pages = ["Sentiment History"];
+const pages = ["Problem History", "Sentiment History"];
 
 async function ResponsiveAppBar() {
   const session = await getServerSession(authOptions);

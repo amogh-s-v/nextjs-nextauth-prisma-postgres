@@ -90,6 +90,7 @@ export async function POST(req) {
               data: {
                 problem: problem,
                 user_id: session?.user.id,
+                joural_id: journal_id,
               },
             });
 

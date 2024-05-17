@@ -26,6 +26,7 @@ model Journal {
   user_id      String
   date         DateTime    @default(now())
   sentiment    Sentiment[]
+  problem      Problem[]
 }
 
 model Sentiment {
@@ -42,6 +43,8 @@ model Problem {
   problem            String
   user_id            String
   user               User   @relation(fields: [user_id], references: [id])
+  joural_id          String
+  journal            Journal @relation(fields: [joural_id], references: [journal_id])
 }
 
 model UniqueProblem {

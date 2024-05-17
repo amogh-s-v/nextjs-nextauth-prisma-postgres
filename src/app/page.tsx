@@ -50,7 +50,7 @@ const App = async () => {
                 WHY?
               </Typography>
               <Typography variant="body1">
-                This app helps individuals with chronice pain improve their
+                This app helps individuals with chronic pain improve their
                 lifestyle through daily journaling. It provides personalized
                 exercise suggestions and tracks your progress, empowering you to
                 make positive changes for a healthier life.
